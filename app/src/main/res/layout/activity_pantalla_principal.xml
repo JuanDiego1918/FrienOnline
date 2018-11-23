@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/contenido"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo"
+    android:orientation="vertical"
+    tools:context=".PantallaPrincipal">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:src="@drawable/icono2" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/nombre"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/contenido"
+                android:focusable="auto"
+                android:hint="Nombre"
+                android:padding="15dp" />
+
+            <EditText
+                android:id="@+id/numero"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/contenido"
+                android:focusable="auto"
+                android:hint="Teléfono"
+                android:inputType="number"
+                android:padding="15dp" />
+
+            <EditText
+                android:id="@+id/gmail"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/contenido"
+                android:focusable="auto"
+                android:hint="Gmail"
+                android:inputType="textEmailAddress"
+                android:padding="15dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="10">
+
+                <Spinner
+                    android:id="@+id/dia"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="7dp"
+                    android:layout_weight="3"
+                    android:background="@drawable/contenido"
+                    android:textDirection="locale"></Spinner>
+
+                <Spinner
+                    android:id="@+id/mes"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="7dp"
+                    android:layout_weight="3"
+                    android:background="@drawable/contenido"
+                    android:textDirection="locale"></Spinner>
+
+                <Spinner
+                    android:id="@+id/anio"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="7dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/contenido"
+                    android:textDirection="locale"></Spinner>
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_gravity="bottom|center"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="60dp"
+                android:background="@drawable/border"
+                android:inputType="textEmailAddress"
+                android:onClick="Registrar"
+                android:text="Registrar"
+                android:textColor="#000"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
