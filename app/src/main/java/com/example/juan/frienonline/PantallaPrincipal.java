@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,12 +24,21 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.juan.frienonline.Principal.Contenedor;
 
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class PantallaPrincipal extends AppCompatActivity {
@@ -38,12 +48,16 @@ public class PantallaPrincipal extends AppCompatActivity {
     CountDownTimer countDownTimer;
     Spinner dia, mesSpinner, anioSpinner;
     ArrayList numeroDia, mes, anio;
+    private StringRequest stringRequest;
+    private RequestQueue request;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pantalla_principal);
 
+        request = Volley.newRequestQueue(getApplicationContext());
         loginCorrecto = new Dialog(this);
         numero = findViewById(R.id.numero);
         nombre = findViewById(R.id.nombre);
@@ -111,7 +125,8 @@ public class PantallaPrincipal extends AppCompatActivity {
     }
 
     public void Registrar(View view) {
-        ventana();
+        //ventana();
+        registrarUsuarios();
     }
 
 
@@ -148,5 +163,47 @@ public class PantallaPrincipal extends AppCompatActivity {
         gmail.setText(null);
         nombre.setText(null);
         numero.setText(null);
+    }
+
+    private void registrarUsuarios() {
+
+        String ur="https://empresapp.000webhostapp.com/registro.php?nombre=victor&telefono=301278822&gmail=victom&nacimiento=24";
+        java.lang.System.setProperty("https.protocols", "TLSv1");
+        stringRequest = new StringRequest(Request.Method.POST, ur, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                if (response.trim().equalsIgnoreCase("registra")) {
+                    Log.i("********RESULTADO", "Respuesta server" + response);
+
+                } else if (response.trim().equalsIgnoreCase("ya existe, datos no guardados")){
+                    Toast.makeText(getApplicationContext(), "El usuario ya existe, por favor ingrese un correo distindo", Toast.LENGTH_LONG).show();
+                }else {
+                    Toast.makeText(getApplicationContext(), "Por el momento el usuario no se puede registrar", Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("RESULTADO", "NO SE REGISTRA desde onError " + error.toString());
+                Log.d("RESULT*****************", "NO SE REGISTRA desde onError " + error.toString());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+
+                Map<String, String> parametros = new HashMap<>();
+                parametros.put("documento","1098313772");
+                parametros.put("nombre", "Juan");
+                parametros.put("profesion", "Programador");
+                Log.i("--------PARAMETROS ", parametros.toString());
+                return parametros;
+
+            }
+        };
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 2, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        request.add(stringRequest);
     }
 }
