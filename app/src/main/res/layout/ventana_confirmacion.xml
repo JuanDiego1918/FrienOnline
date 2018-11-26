@@ -16,10 +16,10 @@
         android:background="@drawable/contenido"
         android:orientation="vertical">
         <ImageView
+            android:id="@+id/imagenVentana"
             android:layout_gravity="center_horizontal"
             android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@drawable/check"/>
+            android:layout_height="100dp" />
         <TextView
             android:id="@+id/mensajeEmergente"
             android:layout_width="match_parent"

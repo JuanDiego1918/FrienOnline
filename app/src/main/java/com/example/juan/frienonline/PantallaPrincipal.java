@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.juan.frienonline.Principal.Contenedor;
@@ -50,7 +52,8 @@ public class PantallaPrincipal extends AppCompatActivity {
     ArrayList numeroDia, mes, anio;
     private StringRequest stringRequest;
     private RequestQueue request;
-
+    private String fechaNacimiento, varDia = "0", varMes = "0", varAnio = "0";
+    private Dialog dialogoCargando;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,7 @@ public class PantallaPrincipal extends AppCompatActivity {
         setContentView(R.layout.activity_pantalla_principal);
 
         request = Volley.newRequestQueue(getApplicationContext());
+        dialogoCargando = new Dialog(this);
         loginCorrecto = new Dialog(this);
         numero = findViewById(R.id.numero);
         nombre = findViewById(R.id.nombre);
@@ -84,7 +88,11 @@ public class PantallaPrincipal extends AppCompatActivity {
         dia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                if (position != 0) {
+                    varDia = numeroDia.get(position).toString();
+                } else {
+                    varDia = "0";
+                }
             }
 
             @Override
@@ -110,6 +118,23 @@ public class PantallaPrincipal extends AppCompatActivity {
         ArrayAdapter<CharSequence> adapterMes = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item_nacimiento, mes);
         mesSpinner.setAdapter(adapterMes);
 
+        mesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position != 0) {
+                    varMes = mes.get(position).toString();
+                } else {
+                    varMes = "0";
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
 
@@ -122,27 +147,84 @@ public class PantallaPrincipal extends AppCompatActivity {
 
         ArrayAdapter<CharSequence> adapterAnio = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item_nacimiento, anio);
         anioSpinner.setAdapter(adapterAnio);
+
+        anioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position != 0) {
+                    varAnio = anio.get(position).toString();
+                } else {
+                    varAnio = "0";
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
     }
 
     public void Registrar(View view) {
-        //ventana();
-        registrarUsuarios();
+
+        if (nombre.getText().toString().equalsIgnoreCase("") || numero.getText().toString().equalsIgnoreCase("") || gmail.getText().toString().equalsIgnoreCase("")) {
+            Toast.makeText(this, "Por favor llene todos los campos", Toast.LENGTH_SHORT).show();
+            ventana(2);
+        } else {
+            if (varDia.equalsIgnoreCase("0") || varMes.equalsIgnoreCase("0") || varAnio.equalsIgnoreCase("0")) {
+                Toast.makeText(this, "Ingrese la fecha de nacimiento", Toast.LENGTH_SHORT).show();
+            } else {
+                dialogoCargando();
+                String url;
+                url = "https://empresapp.000webhostapp.com/registro.php?nombre=" + nombre.getText().toString() + "&telefono=" + numero.getText().toString() + "&gmail=" + gmail.getText().toString() + "&nacimiento=" + varDia + "-" + varMes + "-" + varAnio;
+                stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ventana(1);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "No se pudo registrar verifique los datos", Toast.LENGTH_LONG).show();
+                        ventana(2);
+                    }
+
+                });
+
+                request.add(stringRequest);
+            }
+        }
+    }
+    private void dialogoCargando() {
+        dialogoCargando.setContentView(R.layout.ventana_cargando);
+        Objects.requireNonNull(dialogoCargando.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialogoCargando.show();
     }
 
-
-    private void ventana() {
-        tiempo();
-        TextView txtRetroBuena;
+    private void ventana(int tipo) {
+        dialogoCargando.dismiss();
+        ImageView imagenVentana;
         loginCorrecto.setContentView(R.layout.ventana_confirmacion);
+        imagenVentana = loginCorrecto.findViewById(R.id.imagenVentana);
         TextView respuesta = loginCorrecto.findViewById(R.id.mensajeEmergente);
-        respuesta.setText("Registro Exitoso");
+        if (tipo == 1) {
+            imagenVentana.setImageDrawable(getResources().getDrawable(R.drawable.check));
+            respuesta.setText("Registro Exitoso");
+            tiempo(1);
+        } else {
+            imagenVentana.setImageDrawable(getResources().getDrawable(R.drawable.check_mal));
+            respuesta.setText("Registro No Exitoso");
+            tiempo(2);
+        }
+
 
         Objects.requireNonNull(loginCorrecto.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         loginCorrecto.show();
     }
 
-    private void tiempo() {
-        countDownTimer = new CountDownTimer(3000, 1000) {
+    private void tiempo(final int tipo) {
+        countDownTimer = new CountDownTimer(2000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
 
@@ -150,10 +232,14 @@ public class PantallaPrincipal extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                loginCorrecto.dismiss();
-                limpiar();
-                Intent miActivity=new Intent(getApplicationContext(),Contenedor.class);
-                startActivity(miActivity);
+                if (tipo == 1) {
+                    loginCorrecto.dismiss();
+                    limpiar();
+                    Intent miActivity = new Intent(getApplicationContext(), Contenedor.class);
+                    startActivity(miActivity);
+                } else {
+                    loginCorrecto.dismiss();
+                }
             }
         };
         countDownTimer.start();
@@ -163,47 +249,9 @@ public class PantallaPrincipal extends AppCompatActivity {
         gmail.setText(null);
         nombre.setText(null);
         numero.setText(null);
+        varMes = "0";
+        varAnio = "0";
+        varDia = "0";
     }
 
-    private void registrarUsuarios() {
-
-        String ur="https://empresapp.000webhostapp.com/registro.php?nombre=victor&telefono=301278822&gmail=victom&nacimiento=24";
-        java.lang.System.setProperty("https.protocols", "TLSv1");
-        stringRequest = new StringRequest(Request.Method.POST, ur, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-
-                if (response.trim().equalsIgnoreCase("registra")) {
-                    Log.i("********RESULTADO", "Respuesta server" + response);
-
-                } else if (response.trim().equalsIgnoreCase("ya existe, datos no guardados")){
-                    Toast.makeText(getApplicationContext(), "El usuario ya existe, por favor ingrese un correo distindo", Toast.LENGTH_LONG).show();
-                }else {
-                    Toast.makeText(getApplicationContext(), "Por el momento el usuario no se puede registrar", Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("RESULTADO", "NO SE REGISTRA desde onError " + error.toString());
-                Log.d("RESULT*****************", "NO SE REGISTRA desde onError " + error.toString());
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() {
-
-                Map<String, String> parametros = new HashMap<>();
-                parametros.put("documento","1098313772");
-                parametros.put("nombre", "Juan");
-                parametros.put("profesion", "Programador");
-                Log.i("--------PARAMETROS ", parametros.toString());
-                return parametros;
-
-            }
-        };
-
-
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 2, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        request.add(stringRequest);
-    }
 }
